@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Al Khoud">
+  <rect width="64" height="64" rx="14" fill="#18418e"/>
+  <path d="M32 12c7.8 9.2 12.6 16.2 12.6 22.4A12.6 12.6 0 0 1 32 47a12.6 12.6 0 0 1-12.6-12.6C19.4 28.2 24.2 21.2 32 12Z" fill="#fff" opacity=".95"/>
+  <path d="M22.2 36.6c2.4 2.1 4.9 2.1 7.3 0s4.9-2.1 7.3 0 4.9 2.1 7.3 0" fill="none" stroke="#18418e" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

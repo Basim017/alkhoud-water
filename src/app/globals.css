@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Al Khoud design tokens
+ *
+ * The palette is built outward from the single colour in the Al Khoud
+ * logo — #18418E — reading it as the "deep aquifer" end of a water scale
+ * that runs from mountain haze down to bedrock, with a warm Al Hajjar
+ * stone accent for contrast.
+ * ------------------------------------------------------------------ */
+@theme {
+  /* Brand blue — #18418E is the exact logo colour (brand-700). */
+  --color-brand-50: #eef4fd;
+  --color-brand-100: #d9e6fa;
+  --color-brand-200: #b9d0f5;
+  --color-brand-300: #8bb2ec;
+  --color-brand-400: #5688de;
+  --color-brand-500: #3465c9;
+  --color-brand-600: #234db0;
+  --color-brand-700: #18418e;
+  --color-brand-800: #14336d;
+  --color-brand-900: #102750;
+  --color-brand-950: #0a1830;
+
+  /* Spring — the bright, oxygenated water highlight. */
+  --color-spring-300: #7fdcf0;
+  --color-spring-400: #43c4e2;
+  --color-spring-500: #1ea7c9;
+  --color-spring-600: #1786a4;
+  /* Dark enough to clear 4.5:1 as small text on the paper background. */
+  --color-spring-700: #136e88;
+
+  /* Hajjar — sunlit limestone of the mountain range. */
+  --color-hajjar-200: #f0e3cd;
+  --color-hajjar-300: #e2caa2;
+  --color-hajjar-400: #cfa971;
+  --color-hajjar-500: #b98b4c;
+
+  /* Neutrals leaning very slightly blue so nothing reads as dirty grey. */
+  --color-paper: #f7fafc;
+  --color-mist: #eaf1f7;
+  --color-ink: #0d1b2e;
+  --color-ink-soft: #46586e;
+
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-arabic: var(--font-kufi), var(--font-inter), sans-serif;
+
+  /* Motion. Durations follow the subtle/standard tiers: micro-interactions
+     150–200ms, scroll reveals 400–600ms. */
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  color-scheme: light;
+  --header-h: 4.5rem;
+}
+
+/* The design is a single committed brand expression rather than a
+   themed UI, so the palette does not invert in dark mode. Declaring
+   color-scheme keeps form controls and scrollbars consistent. */
+
+html {
+  scroll-behavior: smooth;
+  /* Anchor targets clear the sticky header. */
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--color-brand-700) 18%, transparent);
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Section anchors need the same clearance when JS smooth-scroll is off. */
+[id] {
+  scroll-margin-top: calc(var(--header-h) + 1rem);
+}
+
+/* Consistent, visible focus for every interactive element. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand-700);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Dark surfaces need a light ring to stay visible. */
+.on-deep :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline-color: var(--color-spring-300);
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* Headline treatment used across every section title. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    max-width: 62ch;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+}
+
+/* ---------------------------------------------------------------- *
+ * Ambient motion. Every keyframe here is decorative, so all of it is
+ * switched off under prefers-reduced-motion at the bottom of the file.
+ * ---------------------------------------------------------------- */
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -1.5%, 0) scale(1.06);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translate3d(0, 12px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.animate-drift {
+  animation: drift 22s var(--ease-out-soft) infinite;
+  will-change: transform;
+}
+
+.animate-drift-slow {
+  animation: drift 34s var(--ease-out-soft) infinite reverse;
+  will-change: transform;
+}
+
+/* Text that fills with a slow sweep of light, like sun on water. */
+.text-sheen {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-800) 20%,
+    var(--color-spring-700) 42%,
+    var(--color-brand-700) 62%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .text-sheen {
+    background-image: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--color-brand-700);
+  }
+}
