@@ -1,33 +1,35 @@
 "use client";
 
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
-import { process } from "@/content/site";
+import type { Dictionary } from "@/content";
 
-/**
- * The quality promise, rising back out of the deep section above into
- * light — the point in the descent where the water is bottled.
- */
-export function Process() {
+export function Process({ t }: { t: Dictionary }) {
   return (
-    <section id="process" className="relative bg-mist py-24 md:py-32">
+    <section id="process" className="stratum relative bg-bg py-24 md:py-32">
       <div className="container-page">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-end lg:gap-20">
           <Reveal>
-            <p className="text-xs font-semibold tracking-[0.22em] text-spring-700 uppercase">
-              Hygiene & Safety
-            </p>
-            <h2 className="display mt-4 text-4xl text-brand-900 sm:text-5xl">{process.title}</h2>
+            <p className="eyebrow text-spring-700 dark:text-spring-400">{t.process.eyebrow}</p>
+            <h2 className="display mt-4 text-4xl sm:text-5xl">{t.process.title}</h2>
           </Reveal>
           <Reveal delay={0.08}>
-            <p className="lede text-lg text-ink-soft">{process.body}</p>
+            <p className="lede text-lg text-muted">{t.process.body}</p>
           </Reveal>
         </div>
 
-        <Stagger as="ul" className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-brand-900/10 sm:grid-cols-2 lg:grid-cols-4">
-          {process.pillars.map((pillar) => (
-            <StaggerItem as="li" key={pillar.title} className="min-w-0 bg-paper p-7">
-              <h3 className="text-base font-semibold text-brand-800">{pillar.title}</h3>
-              <p className="mt-2.5 text-[15px] leading-relaxed text-ink-soft">{pillar.body}</p>
+        {/* Numbered because the process genuinely is a sequence — the
+            company describes it as a 24-step order of operations. */}
+        <Stagger as="ol" className="mt-14 grid gap-px overflow-hidden rounded-xl bg-line sm:grid-cols-2 lg:grid-cols-4">
+          {t.process.pillars.map((pillar, i) => (
+            <StaggerItem as="li" key={pillar.title} className="min-w-0 bg-bg p-7">
+              <span
+                className="display block text-3xl text-accent"
+                style={{ fontVariantNumeric: "tabular-nums" }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-4 text-base font-semibold text-fg">{pillar.title}</h3>
+              <p className="mt-2.5 text-[15px] leading-relaxed text-muted">{pillar.body}</p>
             </StaggerItem>
           ))}
         </Stagger>

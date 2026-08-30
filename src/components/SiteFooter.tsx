@@ -1,21 +1,18 @@
 import { Logo } from "@/components/Logo";
-import { company, contact, copyright, nav, social } from "@/content/site";
+import { contact, copyright, social, type Dictionary } from "@/content";
 
-export function SiteFooter() {
+export function SiteFooter({ t }: { t: Dictionary }) {
   return (
-    <footer className="on-deep border-t border-white/10 bg-brand-950 text-brand-200">
+    <footer className="border-t border-white/10 bg-stone-950 text-stone-300">
       <div className="container-page py-14">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
           <div>
             <Logo tone="light" className="text-base" />
-            <p className="mt-5 max-w-sm text-sm leading-relaxed">
-              {company.descriptor}, drawn from the Al Hajjar mountains and delivered across the
-              Sultanate of Oman.
-            </p>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed">{t.footer.blurb}</p>
           </div>
 
-          <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2">
-            {nav.map((link) => (
+          <nav aria-label={t.a11y.footerNav} className="flex flex-wrap gap-x-6 gap-y-2">
+            {t.nav.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -32,12 +29,15 @@ export function SiteFooter() {
             <a
               href={contact.tollFreeHref}
               className="inline-flex min-h-6 items-center transition-colors duration-200 hover:text-white"
-              translate="no"
             >
-              Toll Free {contact.tollFree}
+              {t.footer.tollFree}{" "}
+              <span translate="no" dir="ltr" className="ms-1">
+                {contact.tollFree}
+              </span>
             </a>
             <a
               href={`mailto:${contact.email}`}
+              dir="ltr"
               className="inline-flex min-h-6 items-center transition-colors duration-200 hover:text-white"
               translate="no"
             >
@@ -55,13 +55,15 @@ export function SiteFooter() {
                 className="inline-flex min-h-6 min-w-6 items-center justify-center text-sm transition-colors duration-200 hover:text-white"
               >
                 {item.label}
-                <span className="sr-only"> (opens in a new tab)</span>
+                <span className="sr-only"> {t.a11y.newTab}</span>
               </a>
             ))}
           </div>
         </div>
 
-        <p className="mt-8 text-xs text-brand-200/60">{copyright}</p>
+        <p className="mt-8 text-xs text-stone-500" dir="ltr">
+          {copyright}
+        </p>
       </div>
     </footer>
   );

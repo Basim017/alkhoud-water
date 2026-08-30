@@ -1,133 +1,186 @@
 @import "tailwindcss";
 
+/* Dark mode is class-driven so the toggle can override the OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ------------------------------------------------------------------ *
  * Al Khoud design tokens
  *
- * The palette is built outward from the single colour in the Al Khoud
- * logo — #18418E — reading it as the "deep aquifer" end of a water scale
- * that runs from mountain haze down to bedrock, with a warm Al Hajjar
- * stone accent for contrast.
+ * The palette is sampled from the company's own photograph of the Al
+ * Hajjar range — warm limestone greys and ochres — rather than the
+ * generic blue every bottled-water site reaches for. Stone owns the
+ * environment; the brand blue (#18418E, the single colour in the Al Khoud
+ * logo) and the cap cyan off the bottles are reserved for the water, the
+ * product and anything you can act on.
  * ------------------------------------------------------------------ */
 @theme {
-  /* Brand blue — #18418E is the exact logo colour (brand-700). */
-  --color-brand-50: #eef4fd;
-  --color-brand-100: #d9e6fa;
-  --color-brand-200: #b9d0f5;
-  --color-brand-300: #8bb2ec;
-  --color-brand-400: #5688de;
-  --color-brand-500: #3465c9;
-  --color-brand-600: #234db0;
-  --color-brand-700: #18418e;
-  --color-brand-800: #14336d;
-  --color-brand-900: #102750;
-  --color-brand-950: #0a1830;
+  /* Limestone — sampled from the Al Hajjar photograph. */
+  --color-stone-50: #f6f3ee;
+  --color-stone-100: #ede8e0;
+  --color-stone-200: #ddd6c9;
+  --color-stone-300: #c6bcab;
+  --color-stone-400: #b4ab9b;
+  --color-stone-500: #928d85;
+  --color-stone-600: #797267;
+  --color-stone-700: #5c574e;
+  --color-stone-800: #423e38;
+  --color-stone-900: #2b2823;
+  --color-stone-950: #1a1815;
 
-  /* Spring — the bright, oxygenated water highlight. */
+  /* Al Khoud blue — 700 is the exact logo colour. */
+  --color-khoud-100: #dbe6f8;
+  --color-khoud-300: #8fb2e8;
+  --color-khoud-500: #2f6fd0;
+  --color-khoud-600: #234db0;
+  --color-khoud-700: #18418e;
+  --color-khoud-800: #14336d;
+  --color-khoud-900: #102750;
+  --color-khoud-950: #0a1830;
+
+  /* Cap cyan, sampled off the bottles themselves. */
   --color-spring-300: #7fdcf0;
-  --color-spring-400: #43c4e2;
+  --color-spring-400: #4fc3e8;
   --color-spring-500: #1ea7c9;
-  --color-spring-600: #1786a4;
-  /* Dark enough to clear 4.5:1 as small text on the paper background. */
   --color-spring-700: #136e88;
 
-  /* Hajjar — sunlit limestone of the mountain range. */
-  --color-hajjar-200: #f0e3cd;
-  --color-hajjar-300: #e2caa2;
-  --color-hajjar-400: #cfa971;
-  --color-hajjar-500: #b98b4c;
+  --font-display: var(--font-bodoni), "Bodoni MT", Didot, Georgia, serif;
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-arabic: var(--font-plex-arabic), var(--font-plex), sans-serif;
 
-  /* Neutrals leaning very slightly blue so nothing reads as dirty grey. */
-  --color-paper: #f7fafc;
-  --color-mist: #eaf1f7;
-  --color-ink: #0d1b2e;
-  --color-ink-soft: #46586e;
-
-  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-arabic: var(--font-kufi), var(--font-inter), sans-serif;
-
-  /* Motion. Durations follow the subtle/standard tiers: micro-interactions
-     150–200ms, scroll reveals 400–600ms. */
   --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:root {
-  color-scheme: light;
-  --header-h: 4.5rem;
+/* Semantic tokens. Components reference these, so the whole page themes
+   from one place instead of sprouting `dark:` on every element. */
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-sunk: var(--c-sunk);
+  --color-fg: var(--c-fg);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-accent: var(--c-accent);
 }
 
-/* The design is a single committed brand expression rather than a
-   themed UI, so the palette does not invert in dark mode. Declaring
-   color-scheme keeps form controls and scrollbars consistent. */
+:root {
+  --header-h: 4.5rem;
+  color-scheme: light;
+
+  --c-bg: var(--color-stone-50);
+  --c-surface: #ffffff;
+  --c-sunk: var(--color-stone-100);
+  --c-fg: var(--color-stone-900);
+  --c-muted: var(--color-stone-700);
+  --c-line: color-mix(in srgb, var(--color-stone-900) 12%, transparent);
+  --c-accent: var(--color-khoud-700);
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Not a plain inversion: the dark theme is the aquifer — stone at depth,
+     which is warmer and browner than a neutral black. */
+  --c-bg: var(--color-stone-950);
+  --c-surface: #221f1b;
+  --c-sunk: #131210;
+  --c-fg: var(--color-stone-100);
+  --c-muted: var(--color-stone-400);
+  --c-line: color-mix(in srgb, var(--color-stone-100) 14%, transparent);
+  --c-accent: var(--color-spring-400);
+}
 
 html {
   scroll-behavior: smooth;
-  /* Anchor targets clear the sticky header. */
   scroll-padding-top: calc(var(--header-h) + 1rem);
-  -webkit-tap-highlight-color: color-mix(in srgb, var(--color-brand-700) 18%, transparent);
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--c-accent) 18%, transparent);
 }
 
 body {
-  background-color: var(--color-paper);
-  color: var(--color-ink);
+  background-color: var(--c-bg);
+  color: var(--c-fg);
   font-family: var(--font-sans);
   overflow-x: clip;
-  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Section anchors need the same clearance when JS smooth-scroll is off. */
+/* Arabic sets its own family and slightly looser leading; the Plex Arabic
+   and Plex Sans metrics are close enough to share one type scale. */
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+[dir="rtl"] .display {
+  font-family: var(--font-arabic);
+  font-weight: 300;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
 [id] {
   scroll-margin-top: calc(var(--header-h) + 1rem);
 }
 
-/* Consistent, visible focus for every interactive element. */
 :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-brand-700);
+  outline: 2px solid var(--c-accent);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-/* Dark surfaces need a light ring to stay visible. */
-.on-deep :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+/* On the dark photographic bands the accent ring can disappear into the
+   image, so those sections opt into a light ring. */
+.on-photo :where(a, button, input, textarea, select, [tabindex]):focus-visible {
   outline-color: var(--color-spring-300);
 }
 
 @layer components {
   .container-page {
     width: 100%;
-    max-width: 80rem;
+    max-width: 82rem;
     margin-inline: auto;
     padding-inline: 1.25rem;
   }
 
   @media (min-width: 768px) {
     .container-page {
-      padding-inline: 2rem;
+      padding-inline: 2.5rem;
     }
   }
 
-  /* Headline treatment used across every section title. */
   .display {
     font-family: var(--font-display);
     font-weight: 500;
-    line-height: 1.05;
-    letter-spacing: -0.015em;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
   .lede {
-    max-width: 62ch;
-    line-height: 1.65;
+    max-width: 60ch;
+    line-height: 1.7;
     text-wrap: pretty;
   }
-}
 
-/* ---------------------------------------------------------------- *
- * Ambient motion. Every keyframe here is decorative, so all of it is
- * switched off under prefers-reduced-motion at the bottom of the file.
- * ---------------------------------------------------------------- */
+  /* The structural motif: a hairline that reads as a bed of rock between
+     one layer and the next. */
+  .stratum {
+    border-top: 1px solid var(--c-line);
+  }
+
+  /* Small caps utility label. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  [dir="rtl"] .eyebrow {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.8125rem;
+  }
+}
 
 @keyframes drift {
   0%,
@@ -135,53 +188,13 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(2%, -1.5%, 0) scale(1.06);
-  }
-}
-
-@keyframes shimmer {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
-}
-
-@keyframes rise {
-  from {
-    transform: translate3d(0, 12px, 0);
-    opacity: 0;
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
+    transform: translate3d(1.5%, -1%, 0) scale(1.04);
   }
 }
 
 .animate-drift {
-  animation: drift 22s var(--ease-out-soft) infinite;
+  animation: drift 28s var(--ease-out-soft) infinite;
   will-change: transform;
-}
-
-.animate-drift-slow {
-  animation: drift 34s var(--ease-out-soft) infinite reverse;
-  will-change: transform;
-}
-
-/* Text that fills with a slow sweep of light, like sun on water. */
-.text-sheen {
-  background-image: linear-gradient(
-    100deg,
-    var(--color-brand-800) 20%,
-    var(--color-spring-700) 42%,
-    var(--color-brand-700) 62%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 9s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -196,12 +209,5 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .text-sheen {
-    background-image: none;
-    -webkit-background-clip: border-box;
-    background-clip: border-box;
-    color: var(--color-brand-700);
   }
 }

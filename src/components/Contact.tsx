@@ -1,51 +1,46 @@
 "use client";
 
-import { Reveal } from "@/components/motion/Reveal";
+import Image from "next/image";
 import { ContactForm } from "@/components/ContactForm";
-import { contact, contactSection, social } from "@/content/site";
+import { Reveal } from "@/components/motion/Reveal";
+import { contact, media, social, type Dictionary } from "@/content";
 
-export function Contact() {
+export function Contact({ t }: { t: Dictionary }) {
+  const c = t.contact;
+  const addressLines = t.locale === "ar" ? contact.addressLinesArabic : contact.addressLines;
+
   return (
     <section
       id="contact"
-      className="on-deep relative isolate overflow-hidden bg-brand-950 py-24 text-white md:py-32"
+      className="on-photo relative isolate overflow-hidden bg-stone-950 py-24 text-white md:py-32"
     >
+      {/* The water surface shot from the original site, used as texture. */}
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-1/2 opacity-20">
+        <Image src={media.waterSurface.src} alt="" fill sizes="100vw" className="object-cover" />
+      </div>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 -bottom-1/3 h-[60vmin] w-[60vmin] rounded-full blur-3xl animate-drift-slow"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in srgb, var(--color-brand-600) 55%, transparent), transparent 70%)",
-        }}
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(26,24,21,0.7),var(--color-stone-950)_60%)]"
       />
 
-      <div className="container-page relative grid gap-14 lg:grid-cols-2 lg:gap-20">
+      <div className="container-page grid gap-14 lg:grid-cols-2 lg:gap-20">
         <div>
           <Reveal>
-            <p className="text-xs font-semibold tracking-[0.22em] text-spring-400 uppercase">
-              Get In Touch
-            </p>
-            <h2 className="display mt-4 text-4xl sm:text-5xl md:text-6xl">
-              {contactSection.title}
-            </h2>
-            <p className="lede mt-6 text-lg text-brand-200">{contactSection.body}</p>
+            <p className="eyebrow text-spring-400">{c.eyebrow}</p>
+            <h2 className="display mt-4 text-4xl sm:text-5xl md:text-6xl">{c.title}</h2>
+            <p className="lede mt-6 text-lg text-stone-300">{c.body}</p>
           </Reveal>
 
           <Reveal delay={0.08} className="mt-10">
-            {/* Every direct child of the <dl> is a <div> holding one
-                dt/dd pair — the two-column row is done with a grid on the
-                list itself rather than an extra wrapper, which would make
-                the dt/dd grandchildren and break the list semantics. */}
             <dl className="grid grid-cols-1 gap-7 sm:grid-cols-2">
               <div className="min-w-0 sm:col-span-2">
-                <dt className="text-xs font-semibold tracking-[0.16em] text-spring-400 uppercase">
-                  Toll Free
-                </dt>
+                <dt className="eyebrow text-spring-400">{c.labels.tollFree}</dt>
                 <dd className="mt-1.5">
                   <a
                     href={contact.tollFreeHref}
                     className="display text-3xl text-white transition-colors duration-200 hover:text-spring-300 sm:text-4xl"
                     translate="no"
+                    dir="ltr"
                     style={{ fontVariantNumeric: "tabular-nums" }}
                   >
                     {contact.tollFree}
@@ -54,13 +49,12 @@ export function Contact() {
               </div>
 
               <div className="min-w-0">
-                <dt className="text-xs font-semibold tracking-[0.16em] text-spring-400 uppercase">
-                  Telephone
-                </dt>
+                <dt className="eyebrow text-spring-400">{c.labels.telephone}</dt>
                 <dd className="mt-1.5 break-words">
                   <a
                     href={contact.phoneHref}
-                    className="inline-flex min-h-6 items-center text-base text-brand-100 transition-colors duration-200 hover:text-white"
+                    dir="ltr"
+                    className="inline-flex min-h-6 items-center text-base text-stone-200 transition-colors duration-200 hover:text-white"
                     translate="no"
                   >
                     {contact.phone}
@@ -69,13 +63,12 @@ export function Contact() {
               </div>
 
               <div className="min-w-0">
-                <dt className="text-xs font-semibold tracking-[0.16em] text-spring-400 uppercase">
-                  Email
-                </dt>
+                <dt className="eyebrow text-spring-400">{c.labels.email}</dt>
                 <dd className="mt-1.5 break-words">
                   <a
                     href={`mailto:${contact.email}`}
-                    className="inline-flex min-h-6 items-center text-base text-brand-100 transition-colors duration-200 hover:text-white"
+                    dir="ltr"
+                    className="inline-flex min-h-6 items-center text-base text-stone-200 transition-colors duration-200 hover:text-white"
                     translate="no"
                   >
                     {contact.email}
@@ -84,12 +77,10 @@ export function Contact() {
               </div>
 
               <div className="min-w-0 sm:col-span-2">
-                <dt className="text-xs font-semibold tracking-[0.16em] text-spring-400 uppercase">
-                  Address
-                </dt>
+                <dt className="eyebrow text-spring-400">{c.labels.address}</dt>
                 <dd className="mt-1.5">
-                  <address className="text-base leading-relaxed text-brand-100 not-italic">
-                    {contact.address.lines.map((line) => (
+                  <address className="text-base leading-relaxed text-stone-200 not-italic">
+                    {addressLines.map((line) => (
                       <span key={line} className="block">
                         {line}
                       </span>
@@ -99,9 +90,7 @@ export function Contact() {
               </div>
 
               <div className="min-w-0 sm:col-span-2">
-                <dt className="text-xs font-semibold tracking-[0.16em] text-spring-400 uppercase">
-                  Follow
-                </dt>
+                <dt className="eyebrow text-spring-400">{c.labels.follow}</dt>
                 <dd className="mt-2.5 flex gap-2.5">
                   {social.map((item) => (
                     <a
@@ -109,8 +98,8 @@ export function Contact() {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`${item.label} (opens in a new tab)`}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 text-brand-100 transition-[background-color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-spring-400 hover:bg-white/10 hover:text-white"
+                      aria-label={`${item.label} ${t.a11y.newTab}`}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-stone-200 transition-[background-color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-spring-400 hover:bg-white/10 hover:text-white"
                       style={{ touchAction: "manipulation" }}
                     >
                       <SocialIcon name={item.label} />
@@ -123,13 +112,11 @@ export function Contact() {
         </div>
 
         <Reveal delay={0.12} className="lg:pt-2">
-          <div className="rounded-3xl border border-white/12 bg-white/5 p-6 backdrop-blur-sm sm:p-8">
-            <h3 className="display text-2xl text-white">Send Us A Message</h3>
-            <p className="mt-2 text-sm text-brand-200">
-              We reply to every enquiry. For urgent orders, the toll free line is fastest.
-            </p>
+          <div className="rounded-2xl border border-white/12 bg-white/5 p-6 backdrop-blur-sm sm:p-8">
+            <h3 className="display text-2xl text-white">{c.formTitle}</h3>
+            <p className="mt-2 text-sm text-stone-300">{c.formNote}</p>
             <div className="mt-7">
-              <ContactForm />
+              <ContactForm t={t} />
             </div>
           </div>
         </Reveal>
@@ -157,7 +144,6 @@ function SocialIcon({ name }: { name: string }) {
       </svg>
     );
   }
-  // X (formerly Twitter)
   return (
     <svg {...common} fill="currentColor">
       <path d="M17.2 3h3.3l-7.2 8.2L21.8 21h-6.6l-4.3-5.6L5.9 21H2.6l7.7-8.8L2.5 3h6.8l3.9 5.2L17.2 3Zm-1.15 16h1.83L8.06 4.9H6.1L16.05 19Z" />

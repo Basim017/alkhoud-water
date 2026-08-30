@@ -1,116 +1,145 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { WaterBackdrop } from "@/components/motion/WaterBackdrop";
+import Image from "next/image";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
 import { CountUp } from "@/components/motion/CountUp";
-import { company, hero, stats } from "@/content/site";
+import { media, type Dictionary } from "@/content";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-export function Hero() {
+/**
+ * The hero opens on the thing that actually makes this water what it is:
+ * the striated limestone of the Al Hajjar range, photographed by the
+ * company itself. The product stands in front of it.
+ */
+export function Hero({ t }: { t: Dictionary }) {
   const reduced = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
 
-  // Headline words rise in sequence. Under reduced motion everything is
-  // rendered in place with no transform.
-  const container = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
-  };
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const photoY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const photoScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+
+  const container = { hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } };
   const item = reduced
     ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: 22 },
+        hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
       };
 
   return (
-    <section id="top" className="relative isolate flex min-h-dvh flex-col justify-between pt-(--header-h)">
-      <WaterBackdrop />
+    <section id="top" ref={ref} className="on-photo relative isolate overflow-hidden bg-stone-950">
+      {/* The rock */}
+      <motion.div
+        className="absolute inset-0 -z-10"
+        style={reduced ? undefined : { y: photoY, scale: photoScale }}
+      >
+        <Image
+          src={media.hajjar.src}
+          alt={t.hero.photoAlt}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </motion.div>
 
-      {/* Content is biased above the horizon line so the ridges never run
-          through the headline. */}
-      <div className="container-page relative flex flex-1 flex-col justify-center pt-12 pb-[12vh]">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="visible"
-          className="max-w-3xl"
-        >
-          <motion.p
-            variants={item}
-            className="text-xs font-semibold tracking-[0.22em] text-brand-600 uppercase sm:text-sm"
-          >
-            {hero.eyebrow}
-          </motion.p>
+      {/* Scrim. Two layers: a vertical one so the headline sits on a dark
+          field, and a side one so the text edge stays legible regardless of
+          what the photograph is doing behind it. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(26,24,21,0.82)_0%,rgba(26,24,21,0.55)_38%,rgba(26,24,21,0.72)_78%,rgba(26,24,21,0.95)_100%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(26,24,21,0.75),transparent_62%)] rtl:bg-[linear-gradient(to_left,rgba(26,24,21,0.75),transparent_62%)]"
+      />
 
-          <motion.h1
-            variants={item}
-            className="display mt-5 text-5xl text-brand-900 sm:text-6xl md:text-7xl lg:text-8xl"
-          >
-            <span className="text-sheen">{hero.title}</span>
-          </motion.h1>
+      <div className="container-page relative grid min-h-dvh grid-rows-[1fr_auto] pt-(--header-h)">
+        <div className="grid items-center gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">
+          <motion.div variants={container} initial="hidden" animate="visible" className="max-w-2xl">
+            <motion.p variants={item} className="eyebrow text-spring-400">
+              {t.hero.eyebrow}
+            </motion.p>
 
-          <motion.p
-            variants={item}
-            aria-hidden="true"
-            dir="rtl"
-            className="font-arabic mt-2 text-left text-2xl font-extralight tracking-[0.06em] text-brand-600/80 sm:text-3xl"
-          >
-            {company.nameArabic}
-          </motion.p>
-
-          <motion.p variants={item} className="lede mt-6 text-lg text-ink-soft sm:text-xl">
-            {hero.body}
-          </motion.p>
-
-          <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-3">
-            <a
-              href={hero.primaryCta.href}
-              className="group inline-flex items-center gap-2 rounded-full bg-brand-700 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/20 transition-[background-color,transform,box-shadow] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:bg-brand-600 hover:shadow-xl hover:shadow-brand-900/25 active:translate-y-0"
-              style={{ touchAction: "manipulation" }}
+            <motion.h1
+              variants={item}
+              className="display mt-5 text-[clamp(2.75rem,8vw,6.5rem)] text-white"
             >
-              {hero.primaryCta.label}
-              <Arrow />
-            </a>
-            <a
-              href={hero.secondaryCta.href}
-              className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-white/70 px-6 py-3.5 text-sm font-semibold text-brand-800 backdrop-blur-sm transition-[background-color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-brand-500 hover:bg-white"
-              style={{ touchAction: "manipulation" }}
-            >
-              {hero.secondaryCta.label}
-            </a>
-          </motion.div>
-        </motion.div>
-      </div>
+              {t.hero.title}
+            </motion.h1>
 
-      {/* Stat band sits on the dark water at the foot of the hero. */}
-      <div className="on-deep relative border-t border-white/10">
-        <div className="container-page">
-          {/* Three across at every width — stacking these on mobile made the
-              hero far too tall. */}
-          <dl className="grid grid-cols-3 gap-4 sm:gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={reduced ? false : { opacity: 0, y: 14 }}
-                animate={reduced ? undefined : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 + index * 0.09, ease: EASE }}
-                className="flex min-w-0 flex-col py-5 sm:py-8"
+            <motion.p variants={item} className="lede mt-6 text-lg text-stone-200 sm:text-xl">
+              {t.hero.body}
+            </motion.p>
+
+            <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-3">
+              <a
+                href="#contact"
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-[background-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:bg-spring-300"
+                style={{ touchAction: "manipulation" }}
               >
-                <dd className="display order-1 text-2xl text-white sm:text-4xl md:text-5xl">
-                  <CountUp
-                    value={Number(stat.value)}
-                    unit={stat.unit}
-                    plain={stat.value === "2016"}
-                  />
-                </dd>
-                <dt className="order-2 mt-1.5 text-[10px] leading-snug font-medium tracking-[0.12em] text-spring-300/80 uppercase sm:text-xs sm:tracking-[0.14em]">
-                  {stat.label}
-                </dt>
-              </motion.div>
-            ))}
-          </dl>
+                {t.hero.primaryCta}
+                <Arrow />
+              </a>
+              <a
+                href="#products"
+                className="inline-flex items-center rounded-full border border-white/35 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-[background-color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-white/70 hover:bg-white/10"
+                style={{ touchAction: "manipulation" }}
+              >
+                {t.hero.secondaryCta}
+              </a>
+            </motion.div>
+          </motion.div>
+
+          {/* The product, lit against the rock. */}
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: 28 }}
+            animate={reduced ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.25, ease: EASE }}
+            className="relative mx-auto w-full max-w-md lg:max-w-none"
+          >
+            <div
+              aria-hidden="true"
+              className="animate-drift absolute inset-x-4 top-1/4 bottom-4 rounded-[50%] bg-spring-400/20 blur-3xl"
+            />
+            <Image
+              src={media.lineup.src}
+              alt={t.hero.lineupAlt}
+              width={media.lineup.width}
+              height={media.lineup.height}
+              priority
+              sizes="(max-width: 1024px) 90vw, 26rem"
+              className="relative w-full drop-shadow-2xl"
+            />
+          </motion.div>
         </div>
+
+        <dl className="grid grid-cols-3 gap-4 border-t border-white/15 sm:gap-8">
+          {t.stats.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={reduced ? false : { opacity: 0, y: 14 }}
+              animate={reduced ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 + i * 0.09, ease: EASE }}
+              className="flex min-w-0 flex-col py-5 sm:py-7"
+            >
+              <dd className="display order-1 text-2xl text-white sm:text-4xl">
+                <CountUp
+                  value={Number(stat.value)}
+                  unit={stat.unit}
+                  plain={stat.value === "2016"}
+                />
+              </dd>
+              <dt className="order-2 mt-1.5 text-[10px] leading-snug font-medium tracking-[0.1em] text-stone-300 uppercase sm:text-xs rtl:tracking-normal rtl:normal-case">
+                {stat.label}
+              </dt>
+            </motion.div>
+          ))}
+        </dl>
       </div>
     </section>
   );
@@ -121,7 +150,7 @@ function Arrow() {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="h-4 w-4 transition-transform duration-200 ease-[var(--ease-out-soft)] group-hover:translate-x-0.5"
+      className="h-4 w-4 transition-transform duration-200 ease-[var(--ease-out-soft)] group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"

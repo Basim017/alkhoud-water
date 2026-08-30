@@ -1,17 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { contactSection } from "@/content/site";
+import { useState } from "react";
+import { contact, type Dictionary } from "@/content";
 
 type Errors = Partial<Record<"name" | "email" | "message", string>>;
 type Status = "idle" | "sending" | "sent" | "error";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function ContactForm() {
-  const formRef = useRef<HTMLFormElement>(null);
+export function ContactForm({ t }: { t: Dictionary }) {
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("idle");
+  const c = t.contact;
 
   function validate(data: FormData): Errors {
     const next: Errors = {};
@@ -19,11 +19,10 @@ export function ContactForm() {
     const email = String(data.get("email") ?? "").trim();
     const message = String(data.get("message") ?? "").trim();
 
-    if (!name) next.name = "Enter your name so we know who to reply to.";
-    if (!email) next.email = "Enter an email address we can reply to.";
-    else if (!EMAIL_RE.test(email)) next.email = "That email address is missing an @ or a domain.";
-    if (!message) next.message = "Tell us what you need and we will get back to you.";
-
+    if (!name) next.name = c.errors.name;
+    if (!email) next.email = c.errors.emailMissing;
+    else if (!EMAIL_RE.test(email)) next.email = c.errors.emailInvalid;
+    if (!message) next.message = c.errors.message;
     return next;
   }
 
@@ -34,8 +33,7 @@ export function ContactForm() {
     const found = validate(data);
     setErrors(found);
 
-    // Move focus to the first field with a problem.
-    const firstBad = (["name", "email", "message"] as const).find((key) => found[key]);
+    const firstBad = (["name", "email", "message"] as const).find((k) => found[k]);
     if (firstBad) {
       form.querySelector<HTMLElement>(`[name="${firstBad}"]`)?.focus();
       return;
@@ -43,12 +41,12 @@ export function ContactForm() {
 
     setStatus("sending");
     try {
-      const response = await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.fromEntries(data)),
       });
-      if (!response.ok) throw new Error(String(response.status));
+      if (!res.ok) throw new Error(String(res.status));
       setStatus("sent");
       form.reset();
     } catch {
@@ -57,43 +55,44 @@ export function ContactForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className="on-deep">
+    <form onSubmit={onSubmit} noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
-          label="Name"
+          label={c.labels.name}
           name="name"
-          type="text"
           autoComplete="name"
-          placeholder="e.g. Fatma Al Balushi…"
+          placeholder={c.placeholders.name}
           error={errors.name}
         />
         <Field
-          label="Email"
+          label={c.labels.email}
           name="email"
           type="email"
           inputMode="email"
           autoComplete="email"
           spellCheck={false}
-          placeholder="e.g. you@company.om…"
+          dir="ltr"
+          placeholder={c.placeholders.email}
           error={errors.email}
         />
         <div className="sm:col-span-2">
           <Field
-            label="Phone"
+            label={c.labels.phone}
             name="phone"
             type="tel"
             inputMode="tel"
             autoComplete="tel"
-            optional
-            placeholder="e.g. +968 9000 0000…"
+            dir="ltr"
+            optional={c.labels.optional}
+            placeholder={c.placeholders.phone}
           />
         </div>
         <div className="sm:col-span-2">
           <Field
-            label="Message"
+            label={c.labels.message}
             name="message"
             as="textarea"
-            placeholder="How many bottles, and where should we deliver?…"
+            placeholder={c.placeholders.message}
             error={errors.message}
           />
         </div>
@@ -102,25 +101,23 @@ export function ContactForm() {
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="submit"
-          className="inline-flex items-center gap-2 rounded-full bg-spring-400 px-7 py-3.5 text-sm font-semibold text-brand-950 transition-[background-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:bg-spring-300 disabled:translate-y-0 disabled:opacity-70"
           disabled={status === "sending"}
+          className="inline-flex items-center gap-2 rounded-full bg-spring-400 px-7 py-3.5 text-sm font-semibold text-stone-950 transition-[background-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:bg-spring-300 disabled:translate-y-0 disabled:opacity-70"
           style={{ touchAction: "manipulation" }}
         >
-          {status === "sending" ? "Sending…" : "Send Message"}
+          {status === "sending" ? c.submitting : c.submit}
           {status === "sending" && <Spinner />}
         </button>
 
         <p aria-live="polite" className="text-sm">
-          {status === "sent" && (
-            <span className="text-spring-300">{contactSection.successMessage}</span>
-          )}
+          {status === "sent" && <span className="text-spring-300">{c.success}</span>}
           {status === "error" && (
-            <span className="text-hajjar-300">
-              That didn&rsquo;t send. Please call{" "}
-              <a href="tel:80070066" className="underline">
-                80070066
+            <span className="text-stone-200">
+              {c.errorPrefix}{" "}
+              <a href={contact.tollFreeHref} className="underline" translate="no">
+                {contact.tollFree}
               </a>{" "}
-              or email us instead.
+              {c.errorSuffix}
             </span>
           )}
         </p>
@@ -138,7 +135,9 @@ type FieldProps = {
   autoComplete?: string;
   spellCheck?: boolean;
   placeholder?: string;
-  optional?: boolean;
+  /** Forces LTR on fields whose value is never Arabic (email, phone). */
+  dir?: "ltr";
+  optional?: string;
   error?: string;
 };
 
@@ -151,7 +150,8 @@ function Field({
   autoComplete,
   spellCheck,
   placeholder,
-  optional = false,
+  dir,
+  optional,
   error,
 }: FieldProps) {
   const id = `field-${name}`;
@@ -163,18 +163,19 @@ function Field({
     placeholder,
     autoComplete,
     spellCheck,
+    dir,
     "aria-invalid": error ? (true as const) : undefined,
     "aria-describedby": error ? errorId : undefined,
-    className: `w-full rounded-xl border bg-white/8 px-4 py-3 text-[15px] text-white placeholder:text-brand-200/70 transition-[border-color,background-color] duration-200 ease-[var(--ease-out-soft)] hover:bg-white/12 ${
-      error ? "border-hajjar-300" : "border-white/18"
+    className: `w-full rounded-lg border bg-white/8 px-4 py-3 text-[15px] text-white placeholder:text-stone-400 transition-[border-color,background-color] duration-200 ease-[var(--ease-out-soft)] hover:bg-white/12 ${
+      error ? "border-spring-300" : "border-white/20"
     }`,
   };
 
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className="block text-sm font-medium text-brand-100">
+      <label htmlFor={id} className="block text-sm font-medium text-stone-200">
         {label}
-        {optional && <span className="ml-1.5 text-brand-200/60">(optional)</span>}
+        {optional && <span className="ms-1.5 text-stone-400">{optional}</span>}
       </label>
       <div className="mt-2">
         {as === "textarea" ? (
@@ -184,7 +185,7 @@ function Field({
         )}
       </div>
       {error && (
-        <p id={errorId} className="mt-2 text-sm text-hajjar-300">
+        <p id={errorId} className="mt-2 text-sm text-spring-300">
           {error}
         </p>
       )}
