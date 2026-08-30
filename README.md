@@ -71,8 +71,14 @@ renders in its final state — verified with a reduced-motion pass in Chromium.
   publish retail bottle sizes, so none were invented; add the confirmed sizes and the
   Products section will render them.
 - The footer carries the original site's `© 2018` notice verbatim. Update the year.
-- Add a real Open Graph image (`src/app/opengraph-image.*`) — metadata is in place, the
-  image is not.
+
+## Deployment
+
+Deployed on Vercel from `main` (production) — `vercel.json` pins the framework preset to
+`nextjs`. Without it the build succeeds but Vercel never applies Next.js output routing
+and every path 404s, so leave that file in place.
+
+The share card is generated at build time by `src/app/opengraph-image.tsx`.
 
 ## Accessibility
 
