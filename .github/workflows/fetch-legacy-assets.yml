@@ -1,0 +1,92 @@
+name: Fetch legacy assets
+
+# One-shot helper. The build environment this site was developed in cannot
+# reach static.wixstatic.com, so this workflow runs on a GitHub runner —
+# which can — to pull the original Al Khoud photography and artwork out of
+# the old Wix site and commit it into the repo.
+#
+# Run it from the Actions tab (or `gh workflow run`). Safe to re-run: it
+# overwrites `assets-src/` and commits only when something actually changed.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scrape the legacy site and download every media asset
+        run: |
+          set -euo pipefail
+          mkdir -p assets-src
+          rm -f assets-src/* || true
+
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36'
+
+          echo "==> Fetching the homepage"
+          curl -sSL -A "$UA" "https://www.alkhoud.com/" -o page.html
+          wc -c page.html
+
+          echo "==> Extracting media URLs"
+          # Wix serves originals at .../media/<id>.<ext>; everything after
+          # /v1/ is a resize transform, so cut it off to get full resolution.
+          grep -oE 'https?://(static|video)\.wixstatic\.com/(media|shapes)/[A-Za-z0-9_~%.-]+\.(png|jpg|jpeg|gif|webp|svg|mp4)' page.html \
+            | sed 's#/v1/.*##' \
+            | sort -u > urls.txt || true
+
+          # Also catch URLs that appear escaped inside inline JSON.
+          grep -oE 'static\.wixstatic\.com\\?/media\\?/[A-Za-z0-9_~%.-]+\.(png|jpg|jpeg|gif|webp)' page.html \
+            | sed 's#\\\\##g' | sed 's#^#https://#' | sort -u >> urls.txt || true
+
+          sort -u urls.txt -o urls.txt
+          echo "Found $(wc -l < urls.txt) unique assets:"
+          cat urls.txt
+
+          echo "==> Downloading"
+          : > assets-src/MANIFEST.txt
+          while read -r url; do
+            [ -z "$url" ] && continue
+            name=$(basename "$url")
+            # ~mv2 and URL-encoding make for awkward filenames on disk.
+            safe=$(printf '%s' "$name" | tr -c 'A-Za-z0-9._-' '_')
+            if curl -sSL -A "$UA" --max-time 90 "$url" -o "assets-src/$safe"; then
+              size=$(stat -c%s "assets-src/$safe" 2>/dev/null || echo 0)
+              if [ "$size" -lt 512 ]; then
+                echo "  SKIP (too small: ${size}B) $safe"
+                rm -f "assets-src/$safe"
+              else
+                type=$(file -b --mime-type "assets-src/$safe")
+                dims=$(identify -format '%wx%h' "assets-src/$safe" 2>/dev/null || echo '?')
+                echo "  OK   $safe  ${size}B  $type  $dims"
+                printf '%s\t%s\t%s\t%s\t%s\n' "$safe" "$size" "$type" "$dims" "$url" >> assets-src/MANIFEST.txt
+              fi
+            else
+              echo "  FAIL $url"
+            fi
+          done < urls.txt
+
+          rm -f page.html urls.txt
+          echo "==> Result"
+          ls -la assets-src/
+          cat assets-src/MANIFEST.txt
+
+      - name: Commit the assets
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets-src
+          if git diff --cached --quiet; then
+            echo "No asset changes."
+          else
+            git commit -m "Add original Al Khoud media pulled from the legacy Wix site
+
+          Downloaded on a GitHub runner because the development environment
+          cannot reach static.wixstatic.com. See assets-src/MANIFEST.txt for
+          the source URL, type and dimensions of each file."
+            git push
+          fi
