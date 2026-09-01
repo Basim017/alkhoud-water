@@ -79,16 +79,14 @@ export function Hero({ t }: { t: Dictionary }) {
             <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-3">
               <a
                 href="#contact"
-                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-[background-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:bg-spring-300"
-                style={{ touchAction: "manipulation" }}
+                className="pressable pressable-lift group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 hover:bg-spring-300"
               >
                 {t.hero.primaryCta}
                 <Arrow />
               </a>
               <a
                 href="#products"
-                className="inline-flex items-center rounded-full border border-white/35 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-[background-color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-white/70 hover:bg-white/10"
-                style={{ touchAction: "manipulation" }}
+                className="pressable pressable-lift inline-flex items-center rounded-full border border-white/35 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm hover:border-white/70 hover:bg-white/10"
               >
                 {t.hero.secondaryCta}
               </a>

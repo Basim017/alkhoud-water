@@ -26,8 +26,7 @@ export function Careers({ t }: { t: Dictionary }) {
             href={careersUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-semibold text-bg transition-transform duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5"
-            style={{ touchAction: "manipulation" }}
+            className="pressable pressable-lift group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-semibold text-bg"
           >
             {t.careers.cta}
             <svg

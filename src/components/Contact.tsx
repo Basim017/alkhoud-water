@@ -99,8 +99,7 @@ export function Contact({ t }: { t: Dictionary }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${item.label} ${t.a11y.newTab}`}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-stone-200 transition-[background-color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-spring-400 hover:bg-white/10 hover:text-white"
-                      style={{ touchAction: "manipulation" }}
+                      className="pressable pressable-lift inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-stone-200 hover:border-spring-400 hover:bg-white/10 hover:text-white"
                     >
                       <SocialIcon name={item.label} />
                     </a>

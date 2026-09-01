@@ -87,13 +87,38 @@ instead of sprouting `dark:` on every element.
 
 ## Motion
 
-Held to the subtle/standard tier: scroll reveals travel 8–16px over 400–600ms, hover
-feedback is under 2px, stagger steps are capped at 0.07s. Only `transform` and `opacity`
-are animated. There is one orchestrated moment — the descent through the Journey — rather
-than effects scattered across every section.
+Held to the subtle/standard tier: scroll reveals travel 8–16px over 400–600ms, press and
+hover feedback is 160ms, stagger steps are capped at 0.07s. Only `transform` and
+`opacity` are animated, and transitions name their properties rather than using `all`.
+
+**The Descent** (`src/components/Descent.tsx`) is the one orchestrated moment. The
+company's copy says the rain travels through "half a kilometre of igneous rock" — a
+number that means nothing as text, so the section pins and scrolling travels the camera
+down the face of their own photograph while a depth readout counts 0 → 500 m and the four
+stages surface as you pass them. The image moves via a transform on a wrapper rather than
+by animating `object-position`, so it stays on the compositor.
+
+Two details worth keeping:
+
+- Which form of the Descent renders is decided identically on the server and the first
+  client render. `useReducedMotion` cannot know the preference during SSR, so the static
+  form is served — that also puts all four stages in the HTML for crawlers — and the
+  scrubbed one is an upgrade applied after mount. Deciding it any other way is a
+  hydration mismatch (React #418).
+- Hover lifts are gated behind `@media (hover: hover) and (pointer: fine)`. On a
+  touchscreen `:hover` sticks after a tap, so an ungated hover-lift leaves controls
+  floating until you tap elsewhere. Press feedback (`scale(0.97)`) is on the element
+  itself, so it works on touch where hover does not.
 
 **Everything decorative is off under `prefers-reduced-motion`**, with content rendered in
 its final state; verified in Chromium.
+
+## The range
+
+The four SKUs are a radio group, not a card grid — picking a size is the actual job. They
+are drawn at their **true relative heights**, which the cutouts make possible because all
+four come from one product render. Selecting one lifts and saturates it and quietens the
+rest; a single live region announces the change instead of four repeated captions.
 
 ## Verified
 

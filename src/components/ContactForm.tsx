@@ -102,8 +102,7 @@ export function ContactForm({ t }: { t: Dictionary }) {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="inline-flex items-center gap-2 rounded-full bg-spring-400 px-7 py-3.5 text-sm font-semibold text-stone-950 transition-[background-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:bg-spring-300 disabled:translate-y-0 disabled:opacity-70"
-          style={{ touchAction: "manipulation" }}
+          className="pressable pressable-lift inline-flex items-center gap-2 rounded-full bg-spring-400 px-7 py-3.5 text-sm font-semibold text-stone-950 hover:bg-spring-300 disabled:translate-y-0 disabled:opacity-70"
         >
           {status === "sending" ? c.submitting : c.submit}
           {status === "sending" && <Spinner />}

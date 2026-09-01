@@ -40,8 +40,7 @@ export function ThemeToggle({ t }: { t: Dictionary }) {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-current transition-colors duration-200 ease-[var(--ease-out-soft)] hover:bg-current/12"
-      style={{ touchAction: "manipulation" }}
+      className="pressable inline-flex h-11 w-11 items-center justify-center rounded-full text-current hover:bg-current/12"
     >
       {/* Both glyphs are always in the DOM; only the transform changes, so
           the swap cannot shift layout. */}

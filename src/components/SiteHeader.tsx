@@ -49,8 +49,7 @@ export function SiteHeader({ t }: { t: Dictionary }) {
             <a
               key={link.href}
               href={link.href}
-              className="rounded-full px-4 py-2 text-sm font-medium text-current transition-colors duration-200 ease-[var(--ease-out-soft)] hover:bg-current/12"
-              style={{ touchAction: "manipulation" }}
+              className="pressable rounded-full px-4 py-2 text-sm font-medium text-current hover:bg-current/12"
             >
               {link.label}
             </a>
@@ -61,8 +60,7 @@ export function SiteHeader({ t }: { t: Dictionary }) {
           <Link
             href={t.otherLocaleHref}
             lang={t.locale === "en" ? "ar" : "en"}
-            className="inline-flex h-11 items-center rounded-full px-3 text-sm font-medium text-current transition-colors duration-200 hover:bg-current/12"
-            style={{ touchAction: "manipulation" }}
+            className="pressable inline-flex h-11 items-center rounded-full px-3 text-sm font-medium text-current hover:bg-current/12"
           >
             {t.otherLocaleLabel}
           </Link>
@@ -71,8 +69,7 @@ export function SiteHeader({ t }: { t: Dictionary }) {
 
           <a
             href={contact.tollFreeHref}
-            className="ms-1 hidden rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition-[background-color,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 sm:inline-flex"
-            style={{ touchAction: "manipulation" }}
+            className="pressable pressable-lift ms-1 hidden rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-bg sm:inline-flex"
           >
             <span className="hidden lg:inline">{t.header.tollFreeShort}&nbsp;</span>
             <span translate="no" style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -86,8 +83,7 @@ export function SiteHeader({ t }: { t: Dictionary }) {
             aria-label={open ? t.a11y.closeMenu : t.a11y.openMenu}
             aria-expanded={open}
             aria-controls="mobile-nav"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-current transition-colors duration-200 hover:bg-current/12 md:hidden"
-            style={{ touchAction: "manipulation" }}
+            className="pressable inline-flex h-11 w-11 items-center justify-center rounded-full text-current hover:bg-current/12 md:hidden"
           >
             <MenuIcon open={open} />
           </button>
@@ -105,8 +101,7 @@ export function SiteHeader({ t }: { t: Dictionary }) {
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-2 py-3.5 text-base font-medium text-fg transition-colors duration-200 hover:bg-fg/8"
-              style={{ touchAction: "manipulation" }}
+              className="pressable rounded-lg px-2 py-3.5 text-base font-medium text-fg hover:bg-fg/8"
             >
               {link.label}
             </a>
@@ -114,8 +109,7 @@ export function SiteHeader({ t }: { t: Dictionary }) {
           <a
             href={contact.tollFreeHref}
             onClick={() => setOpen(false)}
-            className="mt-2 rounded-full bg-accent px-5 py-3.5 text-center text-base font-semibold text-bg"
-            style={{ touchAction: "manipulation" }}
+            className="pressable mt-2 rounded-full bg-accent px-5 py-3.5 text-center text-base font-semibold text-bg"
           >
             {t.header.tollFreeShort}{" "}
             <span translate="no">{contact.tollFree}</span>

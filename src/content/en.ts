@@ -68,6 +68,8 @@ export const en = {
   journey: {
     eyebrow: "From Cloud to Bottle",
     title: "The Journey",
+    depthLabel: "Depth", // new
+    scrollHint: "Scroll to descend", // new
     body:
       "In the sun-kissed surroundings of the majestic Al Hajjar mountains there lies a reservoir of deep earth water as old as civilization. Formed in the rain clouds high above, every shower, every drizzle, every drop makes its journey through half a kilometer of igneous rock and nestles in the deep earth as pure, natural water rich in naturally added minerals.",
     steps: [
@@ -96,7 +98,9 @@ export const en = {
     body:
       "One water, four ways to drink it — and a delivery service that brings it to your door.", // new
     retailTitle: "Retail bottles", // new
-    retailNote: "Sizes as shown on the bottle.", // new
+    retailNote: "Shown at true relative size. Volumes as printed on the bottle.", // new
+    selectHint: "Choose a size", // new
+    skuNotes: ["The family bottle", "The everyday size", "Compact", "Sealed cup"] as string[], // new
     serviceTitle: "Home & office delivery", // new
     services: [
       {

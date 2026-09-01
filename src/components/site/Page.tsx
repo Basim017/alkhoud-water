@@ -1,7 +1,7 @@
 import { Careers } from "@/components/Careers";
 import { Contact } from "@/components/Contact";
 import { Hero } from "@/components/Hero";
-import { Journey } from "@/components/Journey";
+import { Descent } from "@/components/Descent";
 import { Process } from "@/components/Process";
 import { Products } from "@/components/Products";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -24,7 +24,7 @@ export function SitePage({ locale }: { locale: Locale }) {
       <SiteHeader t={t} />
       <main id="main">
         <Hero t={t} />
-        <Journey t={t} />
+        <Descent t={t} />
         <Products t={t} />
         <Story t={t} />
         <Process t={t} />
