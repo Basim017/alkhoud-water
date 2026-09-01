@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Bodoni_Moda, IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { ShellHead, SkipLink } from "@/components/site/Shell";
-import { company, getDictionary } from "@/content";
+import { company, getDictionary, locales } from "@/content";
+import { absolute, isIndexable, localePath, siteUrl } from "@/lib/site";
 import "../globals.css";
 
 /** Echoes the high-contrast Didone serif of the Al Khoud latin wordmark. */
@@ -25,21 +26,45 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 const t = getDictionary("en");
 
 export const metadata: Metadata = {
-  metadataBase: new URL(company.url),
+  metadataBase: new URL(siteUrl),
   title: t.meta.title,
   description: t.meta.description,
-  alternates: { canonical: "/", languages: { en: "/", ar: "/ar" } },
+  applicationName: company.name,
+  authors: [{ name: company.legalName }],
+  creator: company.legalName,
+  publisher: company.legalName,
+  category: "Food & Beverage",
+  alternates: {
+    canonical: localePath.en,
+    // Every locale plus x-default, declared identically on both pages.
+    // hreflang is only honoured when the set is reciprocal.
+    languages: {
+      ...Object.fromEntries(locales.map((l) => [l, absolute(localePath[l])])),
+      "x-default": absolute(localePath.en),
+    },
+  },
   openGraph: {
     type: "website",
     siteName: company.name,
     title: t.meta.title,
     description: t.meta.description,
-    url: company.url,
+    url: absolute(localePath.en),
     locale: "en_OM",
     alternateLocale: "ar_OM",
   },
-  twitter: { card: "summary_large_image", title: t.meta.title, description: t.meta.description },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: "summary_large_image",
+    // The company's own handle, taken from the social links it publishes.
+    site: "@alkhoudwater",
+    creator: "@alkhoudwater",
+    title: t.meta.title,
+    description: t.meta.description,
+  },
+  // Preview deployments serve identical HTML on a throwaway hostname.
+  // Indexing them competes with production for the same queries.
+  robots: isIndexable
+    ? { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } }
+    : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

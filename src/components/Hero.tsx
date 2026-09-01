@@ -66,7 +66,12 @@ export function Hero({ t }: { t: Dictionary }) {
           muted
           loop
           playsInline
-          preload="auto"
+          // Not "auto": the file is ~2.4 MB and would contend with the LCP
+          // image for bandwidth on the initial load. The effect below calls
+          // play(), which starts the fetch after hydration; until then the
+          // 6 KB poster is what is on screen, which is the film's own first
+          // frame, so nothing about the hero looks unfinished while it waits.
+          preload="none"
           poster={heroVideo.poster}
           width={heroVideo.width}
           height={heroVideo.height}
@@ -134,6 +139,14 @@ export function Hero({ t }: { t: Dictionary }) {
 
           {/* The product, standing in front of the water.
 
+              It rises into place but does not fade: this is the page's LCP
+              element, and an element at opacity 0 has not been painted as far
+              as the metric is concerned. Fading it in cost 1.6s of Largest
+              Contentful Paint — the image had finished downloading at 976ms
+              and the measurement did not land until 2.5s, purely waiting for
+              the animation. A transform is free of that; the element is
+              painted from the first frame and merely arrives from below.
+
               `animate` names the visible state unconditionally. Dropping it
               when `reduced` is true strands the element: the first render
               always happens with `reduced` false — the media query cannot be
@@ -142,8 +155,8 @@ export function Hero({ t }: { t: Dictionary }) {
               travel to. Zeroing the transition is what honours the
               preference; removing the destination just hides the product. */}
           <motion.div
-            initial={reduced ? false : { opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={reduced ? false : { y: 28 }}
+            animate={{ y: 0 }}
             transition={reduced ? { duration: 0 } : { duration: 0.9, delay: 0.25, ease: EASE }}
             className="relative mx-auto w-full max-w-md lg:max-w-none"
           >

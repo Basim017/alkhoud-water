@@ -140,6 +140,59 @@ are drawn at their **true relative heights**, which the cutouts make possible be
 four come from one product render. Selecting one lifts and saturates it and quietens the
 rest; a single live region announces the change instead of four repeated captions.
 
+## SEO
+
+`robots.txt`, `sitemap.xml` and `llms.txt` are generated from the same content the
+page renders, so they cannot drift out of step with it.
+
+**The canonical origin is resolved per environment**, in `src/lib/site.ts`:
+
+1. `NEXT_PUBLIC_SITE_URL` if set — use this once the site is live on its final domain;
+2. otherwise `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel sets on every build;
+3. otherwise `alkhoud.com`, for local builds.
+
+This matters more than it looks. Every canonical, hreflang, Open Graph URL and sitemap
+entry is built from it, so a hardcoded origin that the deployment does not actually serve
+tells search engines to index *that* site instead of this one. **If this rebuild is meant
+to replace the Wix site at `alkhoud.com`, set `NEXT_PUBLIC_SITE_URL` to
+`https://www.alkhoud.com` when the domain is pointed at Vercel** — until then it correctly
+canonicalises to the deployment's own hostname.
+
+Only `VERCEL_ENV=production` is indexable. Preview deployments serve identical HTML on a
+throwaway hostname, so they return `noindex, nofollow` and a `Disallow: /` robots.txt —
+otherwise every branch push competes with production for the same queries.
+
+hreflang is emitted **only** from each layout's `alternates.languages`, never by hand.
+Both locales declare the same reciprocal set (`en`, `ar`, `x-default`); a contradictory
+pair is worse than none, because search engines drop the whole cluster rather than pick a
+winner.
+
+Structured data is one `@graph` — `Organization`/`LocalBusiness`, `WebSite`, `WebPage`,
+`AboutPage` — with an `OfferCatalog` of the four SKUs and the three services, and
+`inLanguage` per locale. Facts the company does not publish (opening hours, coordinates,
+prices) are **left out rather than guessed**; there is no `FAQPage` because the page has
+no visible FAQ, and schema that describes content a visitor cannot see is a guidelines
+violation, not a shortcut.
+
+AI assistants are allowed in `robots.txt` by name (GPTBot, ClaudeBot, PerplexityBot,
+Google-Extended and others). `llms.txt` restates the brand's facts flatly for models that
+would otherwise have to infer them from a scroll-driven page.
+
+### Core Web Vitals
+
+Measured locally at 4 Mbps with 70 ms latency, production build:
+
+| | Desktop | Mobile |
+|---|---|---|
+| LCP | 1040 ms | 1020 ms |
+| CLS | 0.013 | 0.006 |
+
+Two things earned most of that. **The hero product image rises but does not fade** — it is
+the LCP element, and an element at opacity 0 has not been painted as far as the metric is
+concerned, so fading it in cost 1.6 s (the image finished downloading at 976 ms; LCP did
+not land until 2.5 s). And the hero film is `preload="none"`, started by the effect after
+hydration, so 2.4 MB does not contend with that image on the initial load.
+
 ## Verified
 
 Checked at 1440×900 and 390×844, in both locales and both themes:
@@ -159,6 +212,11 @@ Checked at 1440×900 and 390×844, in both locales and both themes:
 - **`src/app/api/contact/route.ts`** validates and accepts enquiries but does not deliver
   them. Connect an email provider or CRM webhook at the marked `TODO` — until then,
   submissions are accepted and dropped.
+- **Set `NEXT_PUBLIC_SITE_URL`** in the Vercel project once the final domain is decided.
+  See the SEO section — this is the one setting that changes what gets indexed.
+- **`src/content/site.ts` is dead code** left from the first version, and it carries its
+  own stale copy of `company.url`. Nothing imports it (`src/content/index.ts` re-exports
+  `shared.ts`, not this), but it is a trap worth deleting.
 - The footer carries the original site's `© 2018` notice verbatim. Update the year.
 - `vercel.json` pins the framework preset to `nextjs`. Without it the build succeeds but
   Vercel never applies Next.js output routing and every path 404s — leave it in place.
