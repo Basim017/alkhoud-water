@@ -92,23 +92,28 @@ jobs:
           # A muted decorative background loop: drop audio entirely, cap the
           # width, and move the moov atom to the front so it starts playing
           # before the whole file has arrived.
+          #
+          # crf 30 rather than a visually-lossless number: the film sits under
+          # a scrim at 60-95% opacity and is scaled up 1.12x by the parallax,
+          # so the detail a lower crf buys is never seen — it only costs the
+          # visitor bandwidth on the one asset that blocks the hero.
+          #
+          # H.264 only. A VP9 sibling was tried and came out larger than the
+          # MP4 at matched quality (this is near-white water on white, which
+          # VP9's tooling does not favour), so browsers that prefer WebM were
+          # downloading the heavier file for nothing.
           ffmpeg -y -loglevel error -i hero-src.mp4 \
             -an -vf "scale='min(1600,iw)':-2" \
             -c:v libx264 -profile:v high -pix_fmt yuv420p \
-            -crf 26 -preset slow -movflags +faststart \
+            -crf 30 -preset slow -movflags +faststart \
             public/media/hero.mp4
-
-          ffmpeg -y -loglevel error -i hero-src.mp4 \
-            -an -vf "scale='min(1600,iw)':-2" \
-            -c:v libvpx-vp9 -crf 36 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 \
-            public/media/hero.webm
 
           # Poster: the first frame, so nothing pops when playback starts.
           ffmpeg -y -loglevel error -i hero-src.mp4 -frames:v 1 -q:v 3 hero-poster.jpg
           ffmpeg -y -loglevel error -i hero-poster.jpg -vf "scale='min(1600,iw)':-2" \
             -c:v libwebp -quality 82 public/media/hero-poster.webp
 
-          rm -f hero-src.mp4 hero-poster.jpg
+          rm -f hero-src.mp4 hero-poster.jpg public/media/hero.webm
           echo "==> Result"
           ls -la public/media/hero.*
 
@@ -117,7 +122,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/media/hero.mp4 public/media/hero.webm public/media/hero-poster.webp
+          git add -A public/media/hero.mp4 public/media/hero.webm public/media/hero-poster.webp
           if git diff --cached --quiet; then
             echo "No change."
           else
