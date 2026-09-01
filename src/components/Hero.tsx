@@ -132,11 +132,19 @@ export function Hero({ t }: { t: Dictionary }) {
             </motion.div>
           </motion.div>
 
-          {/* The product, standing in front of the water. */}
+          {/* The product, standing in front of the water.
+
+              `animate` names the visible state unconditionally. Dropping it
+              when `reduced` is true strands the element: the first render
+              always happens with `reduced` false — the media query cannot be
+              read during SSR — so the initial opacity 0 is painted, and by
+              the time the preference arrives there is no target left to
+              travel to. Zeroing the transition is what honours the
+              preference; removing the destination just hides the product. */}
           <motion.div
             initial={reduced ? false : { opacity: 0, y: 28 }}
-            animate={reduced ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: EASE }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={reduced ? { duration: 0 } : { duration: 0.9, delay: 0.25, ease: EASE }}
             className="relative mx-auto w-full max-w-md lg:max-w-none"
           >
             <div
@@ -160,8 +168,10 @@ export function Hero({ t }: { t: Dictionary }) {
             <motion.div
               key={stat.label}
               initial={reduced ? false : { opacity: 0, y: 14 }}
-              animate={reduced ? undefined : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.09, ease: EASE }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                reduced ? { duration: 0 } : { duration: 0.5, delay: 0.6 + i * 0.09, ease: EASE }
+              }
               className="flex min-w-0 flex-col py-5 sm:py-7"
             >
               <dd className="display order-1 text-2xl text-white sm:text-4xl">

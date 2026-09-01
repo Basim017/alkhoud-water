@@ -56,6 +56,26 @@ Everything visual comes from the original site. The development environment cann
 `assets-src/` holds the untouched originals, including a 19 MB photograph — it is the
 input to the pipeline, not something the site ships.
 
+The hero's header film comes down the same way, via
+**`.github/workflows/fetch-hero-video.yml`**. Wix does not put the video URL in the
+markup, but it stores the poster frame beside it as `<id>f000.jpg`, so the workflow reads
+the id off the poster, probes `video.wixstatic.com/video/<id>/<quality>/mp4/file.mp4` for
+the best quality on offer (720p is the highest published), and commits the encodes plus a
+poster into `public/media/`. Audio is stripped — it is a decorative loop — and the `moov`
+atom is moved to the front so playback can start before the file finishes arriving.
+
+The `<source>` order is **MP4 first, WebM second**, which is the reverse of the usual
+advice and deliberate: on this footage x264 encodes smaller than VP9, so listing WebM
+first had every browser that prefers it downloading the heavier file. With the MP4 first,
+everyone who can decode H.264 takes the smaller one and the WebM is left for the browsers
+that cannot — an open-source Chromium build reports no H.264 support at all, and would
+otherwise sit frozen on the poster.
+
+The film is near-white water against white, where the previous backdrop was dark rock, so
+the hero's scrim stops are measured rather than judged by eye: the worst frame of the loop
+is sampled behind every run of text, at three viewports, and the gradient is set to
+whatever clears 4.5:1 there.
+
 The four retail SKUs are **cut out of a single product render** by scanning its alpha
 channel, which is why they can be drawn at their true relative heights in the range: a
 250 ml bottle really is a little over a third the height of the 1.5 litre. The volumes
@@ -125,7 +145,10 @@ rest; a single live region announces the change instead of four repeated caption
 Checked at 1440×900 and 390×844, in both locales and both themes:
 
 - **axe-core: zero violations** (WCAG 2.0/2.1/2.2 A + AA plus best-practice).
-- Contrast computed by hand for pairs axe cannot read over photography.
+- Contrast computed by hand for pairs axe cannot read over photography, and sampled
+  frame-by-frame across the hero film — axe sees one painted frame, not the loop.
+- The hero film plays; under `prefers-reduced-motion` it never starts and the poster
+  frame stands in its place.
 - Skip link first in tab order; every tab stop has a visible focus ring; pointer targets
   meet the WCAG 2.2 24×24 minimum.
 - Theme persists across reload; locale switch flips `lang`/`dir` both ways.
