@@ -97,23 +97,30 @@ jobs:
           # a scrim at 60-95% opacity and is scaled up 1.12x by the parallax,
           # so the detail a lower crf buys is never seen — it only costs the
           # visitor bandwidth on the one asset that blocks the hero.
-          #
-          # H.264 only. A VP9 sibling was tried and came out larger than the
-          # MP4 at matched quality (this is near-white water on white, which
-          # VP9's tooling does not favour), so browsers that prefer WebM were
-          # downloading the heavier file for nothing.
           ffmpeg -y -loglevel error -i hero-src.mp4 \
             -an -vf "scale='min(1600,iw)':-2" \
             -c:v libx264 -profile:v high -pix_fmt yuv420p \
             -crf 30 -preset slow -movflags +faststart \
             public/media/hero.mp4
 
+          # A VP9 fallback, listed *after* the MP4 in the markup rather than
+          # before it. On this footage — near-white water on white — VP9 needs
+          # a much higher crf than usual to beat x264 on size, so the MP4 is
+          # the better file for everyone who can decode H.264. The WebM exists
+          # for the browsers that cannot: open-source Chromium builds ship
+          # without the proprietary codecs, and without this they would sit on
+          # the poster frame.
+          ffmpeg -y -loglevel error -i hero-src.mp4 \
+            -an -vf "scale='min(1600,iw)':-2" \
+            -c:v libvpx-vp9 -crf 44 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 \
+            public/media/hero.webm
+
           # Poster: the first frame, so nothing pops when playback starts.
           ffmpeg -y -loglevel error -i hero-src.mp4 -frames:v 1 -q:v 3 hero-poster.jpg
           ffmpeg -y -loglevel error -i hero-poster.jpg -vf "scale='min(1600,iw)':-2" \
             -c:v libwebp -quality 82 public/media/hero-poster.webp
 
-          rm -f hero-src.mp4 hero-poster.jpg public/media/hero.webm
+          rm -f hero-src.mp4 hero-poster.jpg
           echo "==> Result"
           ls -la public/media/hero.*
 

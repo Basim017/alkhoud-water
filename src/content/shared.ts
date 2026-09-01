@@ -55,6 +55,23 @@ export const media = {
 } as const;
 
 /**
+ * The header loop from the original site — a waterline rising through frame,
+ * shot bright against white. Wix served it as a single 720p MP4; the encodes
+ * and poster here are produced by `.github/workflows/fetch-hero-video.yml`.
+ *
+ * The MP4 is the primary and the WebM the fallback, which is the reverse of
+ * the usual advice: on this footage x264 beats VP9 on size, so the only
+ * browsers that should take the WebM are the ones that cannot decode H.264.
+ */
+export const heroVideo = {
+  mp4: "/media/hero.mp4",
+  webm: "/media/hero.webm",
+  poster: "/media/hero-poster.webp",
+  width: 1280,
+  height: 720,
+} as const;
+
+/**
  * The retail range, read off the size badges on the company's own product
  * artwork — 1.5 Ltr, 500 ml, 250 ml and a 200 ml cup. Each entry points at
  * a cutout taken from the single lineup render.

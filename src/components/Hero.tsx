@@ -2,20 +2,41 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { CountUp } from "@/components/motion/CountUp";
-import { media, type Dictionary } from "@/content";
+import { heroVideo, media, type Dictionary } from "@/content";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 /**
- * The hero opens on the thing that actually makes this water what it is:
- * the striated limestone of the Al Hajjar range, photographed by the
- * company itself. The product stands in front of it.
+ * The hero opens on the original site's own header film: a waterline rising
+ * through frame. The product stands in front of it.
  */
 export function Hero({ t }: { t: Dictionary }) {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  /*
+   * Playback is started here rather than with an `autoPlay` attribute. The
+   * attribute would be in the server-rendered HTML, so the film would already
+   * be running before React could honour `prefers-reduced-motion` — and
+   * rendering the element differently on the server than on the client is a
+   * hydration mismatch. Starting it after mount gets both right: the poster
+   * frame is what reduced-motion visitors keep.
+   *
+   * `muted` is set on the element as well as in JSX because React does not
+   * reflect it to the attribute, and every browser's autoplay policy checks
+   * for it.
+   */
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reduced) return;
+    video.muted = true;
+    // Autoplay can still be refused (data saver, low power mode). The poster
+    // is already on screen, so there is nothing to fall back to.
+    void video.play().catch(() => {});
+  }, [reduced]);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const photoY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
@@ -31,31 +52,49 @@ export function Hero({ t }: { t: Dictionary }) {
 
   return (
     <section id="top" ref={ref} className="on-photo relative isolate overflow-hidden bg-stone-950">
-      {/* The rock */}
+      {/* The water, from the original site's header film. Decorative: it
+          carries no information the headline does not, and a <video> has no
+          alt text to give it. */}
       <motion.div
         className="absolute inset-0 -z-10"
         style={reduced ? undefined : { y: photoY, scale: photoScale }}
       >
-        <Image
-          src={media.hajjar.src}
-          alt={t.hero.photoAlt}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
+        <video
+          ref={videoRef}
+          aria-hidden="true"
+          tabIndex={-1}
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={heroVideo.poster}
+          width={heroVideo.width}
+          height={heroVideo.height}
+          className="h-full w-full object-cover object-center"
+        >
+          {/* MP4 first: it is the smaller file, and all but a sliver of
+              browsers decode H.264. The WebM is there for the ones that do
+              not — open-source Chromium builds ship without the proprietary
+              codecs — who would otherwise sit on the poster frame. */}
+          <source src={heroVideo.mp4} type="video/mp4" />
+          <source src={heroVideo.webm} type="video/webm" />
+        </video>
       </motion.div>
 
-      {/* Scrim. Two layers: a vertical one so the headline sits on a dark
-          field, and a side one so the text edge stays legible regardless of
-          what the photograph is doing behind it. */}
+      {/* Scrim. The film is shot bright — near-white water against white —
+          so these two layers are the entire reason the white type is legible,
+          and their stops are measured rather than judged by eye: the worst
+          frame of the loop was sampled behind every run of text at three
+          viewports, and the darkest the gradient needed to be is what it is.
+          The side layer reaches 92% rather than stopping mid-canvas because
+          on a phone the body copy runs the full width of the viewport. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(26,24,21,0.82)_0%,rgba(26,24,21,0.55)_38%,rgba(26,24,21,0.72)_78%,rgba(26,24,21,0.95)_100%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(26,24,21,0.88)_0%,rgba(26,24,21,0.68)_45%,rgba(26,24,21,0.78)_78%,rgba(26,24,21,0.95)_100%)]"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(26,24,21,0.75),transparent_62%)] rtl:bg-[linear-gradient(to_left,rgba(26,24,21,0.75),transparent_62%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(26,24,21,0.72),transparent_92%)] rtl:bg-[linear-gradient(to_left,rgba(26,24,21,0.72),transparent_92%)]"
       />
 
       <div className="container-page relative grid min-h-dvh grid-rows-[1fr_auto] pt-(--header-h)">
@@ -93,7 +132,7 @@ export function Hero({ t }: { t: Dictionary }) {
             </motion.div>
           </motion.div>
 
-          {/* The product, lit against the rock. */}
+          {/* The product, standing in front of the water. */}
           <motion.div
             initial={reduced ? false : { opacity: 0, y: 28 }}
             animate={reduced ? undefined : { opacity: 1, y: 0 }}
